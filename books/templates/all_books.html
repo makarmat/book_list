@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Wyszukiwarka książek</h1>
+<div>
+    <form action="{% url 'all_books' %}" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <input type="submit" value="Szukaj">
+    </form>
+    <br>
+</div>
+<table  class="table table-dark">
+    <h2>Lista książek</h2>
+    <tr>
+        <th>Tytuł</th>
+        <th>Autor</th>
+        <th>Data publikacji</th>
+        <th>ISBN</th>
+        <th>Liczba stron</th>
+        <th>Zdjęcie okładki</th>
+        <th>Język</th>
+    </tr>
+
+    {% for book in books %}
+    <tr>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.published_date }}</td>
+        <td>{{ book.isbn }}</td>
+        <td>{{ book.page_count }}</td>
+        <td>{{ book.image_link }}</td>
+        <td>{{ book.get_language_display }}</td>
+
+    </tr>
+
+    {% endfor %}
+
+
+
+</table>
+{% endblock %}
