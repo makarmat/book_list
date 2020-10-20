@@ -3,11 +3,12 @@ from django.conf.global_settings import LANGUAGES
 import datetime
 from django.core.exceptions import ValidationError
 
+from books.models import Book
+
 LANGUAGES_EMPTY = [('', 'wybierz język')] + LANGUAGES
 
 
-def validate_year(value):
-    year = value
+def validate_year(year):
     this_year = datetime.datetime.now().year
     if 0 > year >= this_year + 1:
         print('działa')
@@ -20,3 +21,10 @@ class SearchBookForm(forms.Form):
     language = forms.ChoiceField(choices=LANGUAGES_EMPTY, label='Język', required=False)
     published_date_from = forms.IntegerField(label='Data publikacji od', required=False, validators=[validate_year])
     published_date_to = forms.IntegerField(label='Data publikacji do', required=False, validators=[validate_year])
+
+
+class AddEditBookForm(forms.ModelForm):
+
+    class Meta:
+        model = Book
+        fields = '__all__'
