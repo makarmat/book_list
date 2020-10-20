@@ -1,13 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Wyszukiwarka książek</h1>
+{% if book %}
+<h1>Edytuj książkę</h1>
 <div>
     <form action="{% url 'add_book' %}" method="post">{% csrf_token %}
         {{ form.as_p }}
         <br>
-        <input type="submit" value="Dodaj">
+        <input id="{{ book.id }}" name="book_id" type="hidden" value="{{ book.id }}">
+        <button type="submit" name="action" value="edit">Zmień</button>
     </form>
     <br>
 </div>
+{% else %}
+<h1>Dodaj książkę</h1>
+<div>
+    <form action="{% url 'add_book' %}" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <button type="submit" name="action" value="add">Dodaj</button>
+    </form>
+    <br>
+</div>
+{% endif %}
 {% endblock %}

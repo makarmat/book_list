@@ -9,10 +9,13 @@ LANGUAGES_EMPTY = [('', 'wybierz język')] + LANGUAGES
 
 
 def validate_year(year):
+    print(year)
     this_year = datetime.datetime.now().year
-    if 0 > year >= this_year + 1:
-        print('działa')
-        raise ValidationError(f"Rok powinien się zawierać w przedziale 0 - {this_year}")
+    print(this_year)
+    if year < 0:
+        raise ValidationError('Rok publikacji nie może być mniejszy od zera')
+    elif year > this_year:
+        raise ValidationError('Rok publikacji nie może być większy niż {}'.format(this_year))
 
 
 class SearchBookForm(forms.Form):
@@ -24,6 +27,7 @@ class SearchBookForm(forms.Form):
 
 
 class AddEditBookForm(forms.ModelForm):
+    published_date = forms.IntegerField(label='Data publikacji', validators=[validate_year])
 
     class Meta:
         model = Book
