@@ -1,3 +1,4 @@
+import requests
 from django.shortcuts import render, redirect
 from books.forms import SearchBookForm, AddEditBookForm
 from books.models import Book
@@ -97,3 +98,42 @@ class AddEditBookView(View):
                 book.save()
                 return redirect('all_books')
             return render(request, 'add_edit_book.html', {'form': form})
+
+
+class ImportBookView(View):
+    def get(self, request, *args, **kwargs):
+        form = SearchBookForm()
+        return render(request, 'import_books.html', {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = SearchBookForm(request.POST)
+        if form.is_valid():
+            keyword = form.cleaned_data['keyword']
+            googleapikey = ''
+            params = {'q': keyword, 'key': googleapikey}
+            google_books = requests.get(url='https://www.googleapis.com/books/v1/volumes', params=params)
+            books_json = google_books.json()
+            books = books_json['items']
+
+            for book in books:
+                isbn = book['volumeInfo']['industryIdentifiers'][0]['identifier']
+                if book['volumeInfo']['industryIdentifiers'][0]['type'] == 'OTHER':
+                    isbn = None
+
+                published_date = book['volumeInfo']['publishedDate']
+
+                if '-' in published_date:
+                    pd = published_date.split('-')
+                    published_date = pd[0]
+
+                Book.objects.get_or_create(
+                    title=book['volumeInfo']['title'],
+                    author=book['volumeInfo']['authors'][0],
+                    published_date=published_date,
+                    isbn=isbn,
+                    page_count=book['volumeInfo']['pageCount'],
+                    image_link=book['volumeInfo']['imageLinks']['smallThumbnail'],
+                    language=book['volumeInfo']['language']
+                )
+            return redirect('all_books')
+        return render(request, 'import_books.html', {'form': form})

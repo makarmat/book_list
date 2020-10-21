@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Importowanie książek z API</h1>
+<div>
+    <form action="{% url 'import_books' %}" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <button type="submit" name="action" value="search">Importuj do bazy danych</button>
+    </form>
+
+</div>
+{% endblock %}
