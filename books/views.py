@@ -1,5 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Q
+from django.shortcuts import render, redirect
 from books.forms import SearchBookForm, AddEditBookForm
 from books.models import Book
 from django.views import View
@@ -31,9 +30,7 @@ class AllBooksView(View):
                 if title:
                     books = books.filter(title__icontains=title)
                 if author:
-                    books = books.filter(
-                        Q(author__first_name__icontains=author) | Q(author__last_name__icontains=author)
-                    )
+                    books = books.filter(author__icontains=author)
                 if language:
                     books = books.filter(language__icontains=language)
                 if published_date_from:
@@ -71,7 +68,15 @@ class AddEditBookView(View):
         if request.POST['action'] == 'add':
             form = AddEditBookForm(request.POST)
             if form.is_valid():
-                form.save()
+                book = form.save(commit=False)
+                isbn = form.cleaned_data['isbn']
+                print(isbn)
+                if '-' in isbn:
+                    split_isbn = isbn.split('-')
+                    clear_isbn = ''.join(split_isbn)
+                    book.isbn = clear_isbn
+                    print(clear_isbn)
+                book.save()
                 return redirect('all_books')
             return render(request, 'add_edit_book.html', {'form': form})
 
@@ -81,6 +86,14 @@ class AddEditBookView(View):
                 book_id = request.POST['book_id']
                 book = Book.objects.get(pk=book_id)
                 form = AddEditBookForm(request.POST, instance=book)
-                form.save()
+                book = form.save(commit=False)
+                isbn = form.cleaned_data['isbn']
+                print(isbn)
+                if '-' in isbn:
+                    split_isbn = isbn.split('-')
+                    clear_isbn = ''.join(split_isbn)
+                    book.isbn = clear_isbn
+                    print(clear_isbn)
+                book.save()
                 return redirect('all_books')
             return render(request, 'add_edit_book.html', {'form': form})
