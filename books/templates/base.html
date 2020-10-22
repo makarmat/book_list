@@ -8,15 +8,9 @@
     <body>
     <div class="container">
     {% load static %}
-    {% if messages %}
-                <div class="container">
-                {% for message in messages %}
-                    <button{% if message.tags %} class="btn btn-{{ message.tags }} btn-block"{% endif %}>{{ message }}</button>
-                {% endfor %}
-                </div>
-    {% endif %}
-        {%  block content %}
-        {%  endblock %}
+
+    {%  block content %}
+    {%  endblock %}
     </div>
 
     </body>
