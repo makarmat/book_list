@@ -1,6 +1,10 @@
 import requests
 from django.shortcuts import render, redirect
+from rest_framework import generics, filters
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 from books.forms import SearchBookForm, AddEditBookForm, ImportBookForm
+from books.serializers import BookSerializer
 from books.models import Book
 from django.views import View
 
@@ -140,3 +144,11 @@ class ImportBookView(View):
                 )
             return redirect('all_books')
         return render(request, 'import_books.html', {'form': form})
+
+
+class BookAPIView(generics.ListCreateAPIView):
+    search_fields = ['title', 'author', 'language', 'published_date']
+    filter_backends = (filters.SearchFilter,)
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
