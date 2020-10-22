@@ -129,14 +129,6 @@ class ImportBookView(View):
                         req_url += author_qs
                     if keyword == isbn:
                         req_url += isbn_qs
-            print(req_url)
-            # if title:
-            #     req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + title_qs
-            #     print(req_url)
-            # if author:
-            #     req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + author_qs
-            # if isbn:
-            #     req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + isbn_qs
 
             books_request = requests.get(url=req_url)
             books_json = books_request.json()
