@@ -12,7 +12,7 @@ class Book(models.Model):
     published_date = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(9999)],
                                          verbose_name='Data publikacji')
     isbn = models.CharField(max_length=18, null=True, blank=True, verbose_name='ISBN')
-    page_count = models.IntegerField(verbose_name='Ilość stron')
+    page_count = models.IntegerField(verbose_name='Ilość stron', blank=True, null=True)
     image_link = models.URLField(blank=True, null=True, verbose_name='Link do zdjęcia okładki')
     language = models.CharField(max_length=7, choices=LANGUAGES, blank=True, null=True, verbose_name='Język')
 

@@ -112,15 +112,41 @@ class ImportBookView(View):
     def post(self, request):
         form = ImportBookForm(request.POST)
         if form.is_valid():
-            keyword = form.cleaned_data['keyword']
-            req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + '+intitle:' + '"' + keyword + '"'
+            title = form.cleaned_data['title']
+            author = form.cleaned_data['author']
+            isbn = form.cleaned_data['isbn']
+            keywords = [title, author, isbn]
+
+            title_qs = '+intitle:' + title
+            author_qs = '+inauthor:' + author
+            isbn_qs = '+isbn:' + '"' + isbn
+            req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit'
+            for keyword in keywords:
+                if keyword:
+                    if keyword == title:
+                        req_url += title_qs
+                    if keyword == author:
+                        req_url += author_qs
+                    if keyword == isbn:
+                        req_url += isbn_qs
+            print(req_url)
+            # if title:
+            #     req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + title_qs
+            #     print(req_url)
+            # if author:
+            #     req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + author_qs
+            # if isbn:
+            #     req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + isbn_qs
+
             books_request = requests.get(url=req_url)
             books_json = books_request.json()
             books = books_json['items']
 
             for book in books:
-                isbn = book['volumeInfo']['industryIdentifiers'][0]['identifier']
-                if book['volumeInfo']['industryIdentifiers'][0]['type'] == 'OTHER':
+
+                if 'industryIdentifiers' in book['volumeInfo']:
+                    isbn = book['volumeInfo']['industryIdentifiers'][0]['identifier']
+                else:
                     isbn = None
 
                 published_date = book['volumeInfo']['publishedDate']
@@ -133,14 +159,25 @@ class ImportBookView(View):
                 else:
                     image_link = None
 
+                if 'pageCount' in book['volumeInfo']:
+                    pagecount = book['volumeInfo']['pageCount']
+
+                else:
+                    pagecount = 0
+
+                if 'language' in book['volumeInfo']:
+                    language = book['volumeInfo']['language']
+                else:
+                    language = None
+
                 Book.objects.get_or_create(
                     title=book['volumeInfo']['title'],
                     author=book['volumeInfo']['authors'][0],
                     published_date=published_date,
                     isbn=isbn,
-                    page_count=book['volumeInfo']['pageCount'],
+                    page_count=pagecount,
                     image_link=image_link,
-                    language=book['volumeInfo']['language']
+                    language=language
                 )
             return redirect('all_books')
         return render(request, 'import_books.html', {'form': form})

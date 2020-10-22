@@ -5,13 +5,14 @@ import pyisbn
 from django.core.exceptions import ValidationError
 from books.models import Book
 
+
 LANGUAGES_EMPTY = [('', 'wybierz język')] + LANGUAGES
 
 
 def validate_year(year):
     this_year = datetime.datetime.now().year
     if year < 0:
-        raise ValidationError('Rok publikacji nie może być mniejszy od zera!')
+        raise ValidationError('Rok publikacji nie może być mniejszy od 0!')
     elif year > this_year:
         raise ValidationError('Rok publikacji nie może być większy niż {}!'.format(this_year))
 
@@ -31,7 +32,7 @@ class SearchBookForm(forms.Form):
 
 class AddEditBookForm(forms.ModelForm):
     published_date = forms.IntegerField(label='Data publikacji', validators=[validate_year])
-    isbn = forms.CharField(label='ISBN', validators=[validate_isbn])
+    isbn = forms.CharField(label='ISBN', validators=[validate_isbn], required=False)
 
     class Meta:
         model = Book
@@ -39,4 +40,6 @@ class AddEditBookForm(forms.ModelForm):
 
 
 class ImportBookForm(forms.Form):
-    keyword = forms.CharField(label='Słowo kluczowe API')
+    title = forms.CharField(label='Tytuł', required=False)
+    author = forms.CharField(label='Autor', required=False)
+    isbn = forms.CharField(label='ISBN', required=False)
