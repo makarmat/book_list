@@ -33,7 +33,11 @@
                 <td>{{ book.published_date }}</td>
                 <td>{{ book.isbn | default_if_none:"-" }}</td>
                 <td>{{ book.page_count }}</td>
-                <td>{{ book.image_link | default_if_none:"-" }}</td>
+                {% if book.image_link == None %}
+                <td>-</td>
+                {% else %}
+                <td><a href='{{ book.image_link | default_if_none:"-" }}'>{{ book.image_link | default_if_none:"-" }}</a></td>
+                {% endif %}
                 <td>{{ book.get_language_display }}</td>
                 <td>
                     <input id="{{ book.id }}" name="book_id" type="hidden" value="{{ book.id }}">

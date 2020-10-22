@@ -38,5 +38,5 @@ class AddEditBookForm(forms.ModelForm):
         fields = '__all__'
 
 
-class SearchBookForm(forms.Form):
+class ImportBookForm(forms.Form):
     keyword = forms.CharField(label='Słowo kluczowe API')

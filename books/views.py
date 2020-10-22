@@ -1,6 +1,6 @@
 import requests
 from django.shortcuts import render, redirect
-from books.forms import SearchBookForm, AddEditBookForm
+from books.forms import SearchBookForm, AddEditBookForm, ImportBookForm
 from books.models import Book
 from django.views import View
 
@@ -10,7 +10,7 @@ from django.views import View
 
 class AllBooksView(View):
     def get(self, request):
-        books = Book.objects.all().order_by('title')
+        books = Book.objects.all().order_by('-id')
         form = SearchBookForm()
         return render(request, 'all_books.html', {
             'books': books,
@@ -20,7 +20,7 @@ class AllBooksView(View):
     def post(self, request):
         if request.POST['action'] == 'search':
             form = SearchBookForm(request.POST)
-            books = Book.objects.all().order_by('title')
+            books = Book.objects.all().order_by('-id')
             if form.is_valid():
                 title = form.cleaned_data['title']
                 author = form.cleaned_data['author']
@@ -101,18 +101,17 @@ class AddEditBookView(View):
 
 
 class ImportBookView(View):
-    def get(self, request, *args, **kwargs):
-        form = SearchBookForm()
+    def get(self, request):
+        form = ImportBookForm()
         return render(request, 'import_books.html', {'form': form})
 
-    def post(self, request, *args, **kwargs):
-        form = SearchBookForm(request.POST)
+    def post(self, request):
+        form = ImportBookForm(request.POST)
         if form.is_valid():
             keyword = form.cleaned_data['keyword']
-            googleapikey = ''
-            params = {'q': keyword, 'key': googleapikey}
-            google_books = requests.get(url='https://www.googleapis.com/books/v1/volumes', params=params)
-            books_json = google_books.json()
+            req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit' + '+intitle:' + '"' + keyword + '"'
+            books_request = requests.get(url=req_url)
+            books_json = books_request.json()
             books = books_json['items']
 
             for book in books:
@@ -121,10 +120,14 @@ class ImportBookView(View):
                     isbn = None
 
                 published_date = book['volumeInfo']['publishedDate']
-
                 if '-' in published_date:
                     pd = published_date.split('-')
                     published_date = pd[0]
+
+                if 'imageLinks' in book['volumeInfo']:
+                    image_link = book['volumeInfo']['imageLinks']['thumbnail']
+                else:
+                    image_link = None
 
                 Book.objects.get_or_create(
                     title=book['volumeInfo']['title'],
@@ -132,7 +135,7 @@ class ImportBookView(View):
                     published_date=published_date,
                     isbn=isbn,
                     page_count=book['volumeInfo']['pageCount'],
-                    image_link=book['volumeInfo']['imageLinks']['smallThumbnail'],
+                    image_link=image_link,
                     language=book['volumeInfo']['language']
                 )
             return redirect('all_books')
