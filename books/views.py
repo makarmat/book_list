@@ -155,7 +155,11 @@ class ImportBookView(View):
                 published_date = book['volumeInfo']['publishedDate']
                 if '-' in published_date:
                     pd = published_date.split('-')
-                    published_date = pd[0]
+                    published_date = ''
+                    for i in pd[0]:
+                        if i.isdigit():
+                            published_date += i
+
 
                 if 'imageLinks' in book['volumeInfo']:
                     image_link = book['volumeInfo']['imageLinks']['thumbnail']
