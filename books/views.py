@@ -127,7 +127,7 @@ class ImportBookView(View):
                         req_url += author_qs
                     if keyword == isbn:
                         req_url += isbn_qs
-            print(req_url)
+
             books_request = requests.get(url=req_url)
             books_json = books_request.json()
             try:
