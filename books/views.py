@@ -2,7 +2,7 @@ import requests
 from django.shortcuts import render, redirect
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
+from django.contrib import messages
 from books.forms import SearchBookForm, AddEditBookForm, ImportBookForm
 from books.serializers import BookSerializer
 from books.models import Book
@@ -75,12 +75,10 @@ class AddEditBookView(View):
             if form.is_valid():
                 book = form.save(commit=False)
                 isbn = form.cleaned_data['isbn']
-                print(isbn)
                 if '-' in isbn:
                     split_isbn = isbn.split('-')
                     clear_isbn = ''.join(split_isbn)
                     book.isbn = clear_isbn
-                    print(clear_isbn)
                 book.save()
                 return redirect('all_books')
             return render(request, 'add_edit_book.html', {'form': form})
@@ -132,7 +130,12 @@ class ImportBookView(View):
             print(req_url)
             books_request = requests.get(url=req_url)
             books_json = books_request.json()
-            books = books_json['items']
+            try:
+                books = books_json['items']
+            except Exception:
+                messages.warning(request, 'Brak książek do zaimportowania!')
+                form = ImportBookForm()
+                return render(request, 'import_books.html', {'form': form})
 
             for book in books:
 

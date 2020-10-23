@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Importowanie książek z API</h1>
+<h1>Importowanie książek z API:
+https://www.googleapis.com/books/v1/volumes?q=Hobbit</h1>
 <div>
     <form action="{% url 'import_books' %}" method="post">{% csrf_token %}
         {{ form.as_p }}
         <br>
         <button type="submit" name="action" value="search">Importuj do bazy danych</button>
     </form>
+    <br>
+    <a href="{% url 'all_books' %}"><button>Powrót do listy książek</button></a>
 
 </div>
 {% endblock %}
