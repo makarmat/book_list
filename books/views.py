@@ -119,7 +119,7 @@ class ImportBookView(View):
 
             title_qs = '+intitle:' + title
             author_qs = '+inauthor:' + author
-            isbn_qs = '+isbn:' + '"' + isbn
+            isbn_qs = '+isbn:' + isbn
             req_url = 'https://www.googleapis.com/books/v1/volumes?q=Hobbit'
             for keyword in keywords:
                 if keyword:
@@ -129,12 +129,20 @@ class ImportBookView(View):
                         req_url += author_qs
                     if keyword == isbn:
                         req_url += isbn_qs
-
+            print(req_url)
             books_request = requests.get(url=req_url)
             books_json = books_request.json()
             books = books_json['items']
 
             for book in books:
+
+                if 'authors' in book['volumeInfo']:
+                    authors = book['volumeInfo']['authors']
+                    author = ''
+                    for a in authors:
+                        author += a
+                else:
+                    author = None
 
                 if 'industryIdentifiers' in book['volumeInfo']:
                     isbn = book['volumeInfo']['industryIdentifiers'][0]['identifier']
@@ -164,7 +172,7 @@ class ImportBookView(View):
 
                 Book.objects.get_or_create(
                     title=book['volumeInfo']['title'],
-                    author=book['volumeInfo']['authors'][0],
+                    author=author,
                     published_date=published_date,
                     isbn=isbn,
                     page_count=pagecount,

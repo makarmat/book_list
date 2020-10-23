@@ -8,7 +8,7 @@ from django.conf.global_settings import LANGUAGES
 
 class Book(models.Model):
     title = models.CharField(max_length=128, verbose_name='Tytuł')
-    author = models.CharField(max_length=128, verbose_name='Autor')
+    author = models.CharField(max_length=128, verbose_name='Autor', null=True, blank=True)
     published_date = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(9999)],
                                          verbose_name='Data publikacji')
     isbn = models.CharField(max_length=18, null=True, blank=True, verbose_name='ISBN')
